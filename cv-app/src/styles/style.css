@@ -65,3 +65,27 @@
   border: transparent;
   border-radius: 0.2em;
 }
+
+.work_info_table {
+  display: flex;
+  flex-direction: column;
+}
+
+.work_info_box {
+  display: flex;
+  justify-content: space-between;
+  background-color: aquamarine;
+  padding: 0.5em 1em;
+  border-radius: 0.2em;
+}
+
+.work_box_icons {
+  display: flex;
+  gap: 1em;
+}
+
+.work_info_experiences {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}

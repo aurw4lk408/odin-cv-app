@@ -1,28 +1,78 @@
 import { useState } from "react";
 
 export default function WorkInfo() {
-  const [isSent, setIsSent] = useState("");
-  const [basicInfoArray, setBasicInfoArray] = useState([]);
-  const [required, setRequired] = useState(true);
+  const [newBoxArray, setNewBoxArray] = useState([]);
+  const [boxData, setBoxData] = useState({
+    title: "",
+    company: "",
+    dates: "",
+    responsibilities: "",
+  });
+  const [editValue, setEditValue] = useState({
+    title: "",
+    company: "",
+    dates: "",
+    responsibilities: "",
+  });
 
-  const [editButtonDisabled, setEditButtonDisabled] = useState(true);
-  const [submitButtonDisabled, setSubmitButtonDisabled] = useState(false);
-  const [inputDisabled, setInputDisabled] = useState(false);
+  function createBox(boxData, index) {
+    return (
+      <>
+        <div className="work_info_box">
+          <div className="workplace_title_container">
+            <p>
+              {boxData.company} / {boxData.title}
+            </p>
+          </div>
+          <div className="work_box_icons">
+            <button onClick={() => onEdit(index)}>Edit</button>
+            <button onClick={() => remove(index)}>Remove</button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
-  function onEdit() {
-    if (isSent === "submitted") {
-      const inputs = document.querySelectorAll(".work_info_input");
-      inputs.forEach((input, index) => {
-        input.value = basicInfoArray[index];
-      });
+  function onEdit(indexToEdit) {
+    const editedBox = newBoxArray[indexToEdit];
+    const inputs = document.querySelectorAll(".work_info_input");
 
-      setIsSent("editing");
-      setRequired(false);
+    // populates the input fields with the correct array index data
+    inputs.forEach((input) => {
+      const fieldname = input.getAttribute("placeholder");
+      const value = editedBox[fieldname.toLowerCase()];
 
-      setEditButtonDisabled(true);
-      setSubmitButtonDisabled(false);
-      setInputDisabled(false);
-    }
+      //   input.value = editedBox[fieldname.toLowerCase()];
+
+      // update boxData and editValue so that the input fields are left with the correct data
+      setBoxData((prevData) => ({
+        ...prevData,
+        [fieldname.toLowerCase()]: value,
+      }));
+
+      setEditValue((prevData) => ({
+        ...prevData,
+        [fieldname.toLowerCase()]: value,
+      }));
+    });
+
+    // updates main array so that it can update the task boxes correctly
+    const updatedBoxArray = newBoxArray.filter(
+      (_, index) => index !== indexToEdit
+    );
+    setNewBoxArray(updatedBoxArray);
+  }
+
+  //   function returnEditValue(variable) {
+  //     return editValue[variable];
+  //   }
+
+  function remove(indexToRemove) {
+    // const boxes = document.querySelectorAll(".work_box");
+    const updatedBoxArray = newBoxArray.filter(
+      (_, index) => index !== indexToRemove
+    );
+    setNewBoxArray(updatedBoxArray);
   }
 
   function onSubmit() {
@@ -30,32 +80,61 @@ export default function WorkInfo() {
     let allFieldsFilled = true;
 
     inputs.forEach((input) => {
-      if (input.value.trim() === "") {
+      const fieldName = input.getAttribute("placeholder");
+      const value = input.value;
+
+      if (value === "") {
         allFieldsFilled = false;
+      } else {
+        setBoxData((prevData) => ({
+          ...prevData,
+          [fieldName.toLowerCase()]: value,
+        }));
+
+        setEditValue((prevData) => ({
+          ...prevData,
+          [fieldName.toLowerCase()]: value,
+        }));
       }
     });
 
+    console.log(boxData);
+    console.log(editValue);
+
     if (allFieldsFilled) {
-      const values = Array.from(inputs).map((input) => input.value);
+      setNewBoxArray([...newBoxArray, boxData]);
 
-      setBasicInfoArray(values);
-      setIsSent("submitted");
-
-      inputs.forEach((input) => {
-        input.value = "";
+      setBoxData({
+        title: "",
+        company: "",
+        dates: "",
+        responsibilities: "",
       });
-      setRequired(true);
 
-      setEditButtonDisabled(false);
-      setSubmitButtonDisabled(true);
-      setInputDisabled(true);
+      setEditValue({
+        title: "",
+        company: "",
+        dates: "",
+        responsibilities: "",
+      });
+
+      //   inputs.forEach((input) => {
+      //     input.value = "";
+      //   });
     }
   }
 
   return (
     <div className="work_info_table">
-      <div className="underline">
+      <div className="underline work_info_underline">
         <h2 className="table_header_text">Work Experience</h2>
+        <div className="work_info_experiences">
+          {newBoxArray.map((item, index) => (
+            <div className="work_box" key={index}>
+              {createBox(item, index)}
+            </div>
+          ))}
+        </div>
       </div>
 
       <form action="#" className="form_container">
@@ -63,72 +142,73 @@ export default function WorkInfo() {
         <input
           className="work_info_input"
           type="text"
-          placeholder="First Name"
-          required={required}
-          disabled={inputDisabled}
+          placeholder="Title"
+          required
+          onChange={(e) => {
+            setBoxData({ ...boxData, title: e.target.value });
+            setEditValue({ ...editValue, title: e.target.value });
+          }}
+          value={editValue.title}
+          //   onChange={(e) => setBoxData({ ...boxData, title: e.target.value })}
         />
 
         {/* <label htmlFor="">Last Name</label> */}
         <input
           className="work_info_input"
           type="text"
-          placeholder="Last Name"
-          required={required}
-          disabled={inputDisabled}
+          placeholder="Company"
+          required
+          onChange={(e) => {
+            setBoxData({ ...boxData, company: e.target.value });
+            setEditValue({ ...editValue, company: e.target.value });
+          }}
+          value={editValue.company}
+          //   onChange={(e) => setBoxData({ ...boxData, company: e.target.value })}
         />
 
         {/* <label htmlFor="">Email</label> */}
         <input
           className="work_info_input"
           type="email"
-          placeholder="Email"
-          required={required}
-          disabled={inputDisabled}
+          placeholder="Dates"
+          required
+          onChange={(e) => {
+            setBoxData({ ...boxData, dates: e.target.value });
+            setEditValue({ ...editValue, dates: e.target.value });
+          }}
+          value={editValue.dates}
+          //   onChange={(e) => setBoxData({ ...boxData, dates: e.target.value })}
         />
 
         {/* <label htmlFor="">Phone number</label> */}
         <input
           className="work_info_input"
           type="text"
-          placeholder="Phone Number"
-          required={required}
-          disabled={inputDisabled}
+          placeholder="Responsibilities"
+          required
+          onChange={(e) => {
+            setBoxData({ ...boxData, responsibilities: e.target.value });
+            setEditValue({ ...editValue, responsibilities: e.target.value });
+          }}
+          value={editValue.responsibilities}
+          //   onChange={(e) =>
+          //     setBoxData({ ...boxData, responsibilities: e.target.value })
+          //   }
         />
 
-        {/* <label htmlFor="">Address</label> */}
-        <input
+        {/* <input
           className="work_info_input"
           type="text"
           placeholder="Address"
-          required={required}
-          disabled={inputDisabled}
-        />
+          required
+        /> */}
 
         <div className="button_container">
-          <button
-            className="edit"
-            onClick={onEdit}
-            disabled={editButtonDisabled}
-          >
-            Edit
-          </button>
-          <button
-            className="submit"
-            onClick={onSubmit}
-            disabled={submitButtonDisabled}
-          >
+          <button className="submit" onClick={onSubmit}>
             Submit
           </button>
         </div>
       </form>
-
-      <p
-        className="notification_text"
-        style={{ margin: isSent ? "1em 0" : "0" }}
-      >
-        {isSent === "submitted" && "This section was successfully submitted"}
-        {isSent === "editing" && "This section is currently being edited"}
-      </p>
     </div>
   );
 }
